@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ar1emq — Моды для Minecraft</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== MINECRAFT RUS FONT ===== */
+    @font-face {
+      font-family: 'Minecraft Rus';
+      src: local('Minecraft Rus'),
+           local('MinecraftRus'),
+           local('minecraft rus'),
+           url('minecraft-rus.woff2') format('woff2'),
+           url('minecraft-rus.ttf') format('truetype'),
+           url('minecraft-rus.otf') format('opentype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #000000;
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --border: rgba(255,255,255,0.04);
+      --glass-bg: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.06);
+      --glass-highlight: rgba(255,255,255,0.10);
+      --anim-hue: 0;
+    }
+
+    body {
+      font-family: 'Minecraft Rus', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ===== ANIMATED RAINBOW GRADIENT BACKGROUND ===== */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 40%, hsla(var(--anim-hue), 90%, 45%, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 60%, hsla(calc(var(--anim-hue) + 30), 90%, 40%, 0.14) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 20%, hsla(calc(var(--anim-hue) + 60), 90%, 48%, 0.10) 0%, transparent 50%);
+      animation: rainbowShift 60s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes rainbowShift {
+      0%   { --anim-hue: 0;   }
+      14%  { --anim-hue: 30;  }
+      28%  { --anim-hue: 55;  }
+      42%  { --anim-hue: 140; }
+      57%  { --anim-hue: 190; }
+      71%  { --anim-hue: 220; }
+      85%  { --anim-hue: 280; }
+      100% { --anim-hue: 360; }
+    }
+
+    @property --anim-hue {
+      syntax: '<number>';
+      inherits: false;
+      initial-value: 0;
+    }
+
+    /* OLED grain texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ===== LIQUID GLASS BUTTON (square-ish) ===== */
+    .lg-btn {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top-color: rgba(255,255,255,0.14);
+      border-radius: 3px;
+      padding: 10px 20px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition:
+        transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.35s ease,
+        border-color 0.35s ease;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.08) inset,
+        0 4px 20px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(255,255,255,0.015);
+      overflow: hidden;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      isolation: isolate;
+    }
+
+    .lg-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 40%, transparent 60%);
+      border-radius: inherit;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .lg-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 60%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .lg-btn:hover {
+      background: linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.04) 100%);
+      border-color: rgba(255,255,255,0.12);
+      border-top-color: rgba(255,255,255,0.22);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.12) inset,
+        0 12px 40px rgba(0,0,0,0.45),
+        0 0 0 1px rgba(255,255,255,0.025),
+        0 8px 24px hsla(var(--anim-hue), 90%, 55%, 0.10);
+    }
+
+    .lg-btn:hover::after {
+      opacity: 1;
+    }
+
+    .lg-btn:active {
+      transform: translateY(0px) scale(0.96);
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      border-top-color: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.04);
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.5) inset,
+        0 1px 0 rgba(255,255,255,0.03) inset,
+        0 0 0 1px rgba(255,255,255,0.01);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .lg-btn-accent {
+      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.22) 0%, hsla(var(--anim-hue), 90%, 55%, 0.06) 100%);
+      border-color: hsla(var(--anim-hue), 90%, 55%, 0.25);
+      border-top-color: hsla(var(--anim-hue), 90%, 65%, 0.45);
+      color: hsl(var(--anim-hue), 90%, 85%);
+    }
+
+    .lg-btn-accent::after {
+      background: radial-gradient(ellipse at center, hsla(var(--anim-hue), 90%, 55%, 0.15) 0%, transparent 70%);
+    }
+
+    .lg-btn-accent:hover {
+      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.32) 0%, hsla(var(--anim-hue), 90%, 55%, 0.10) 100%);
+      border-color: hsla(var(--anim-hue), 90%, 55%, 0.40);
+      border-top-color: hsla(var(--anim-hue), 90%, 65%, 0.60);
+      box-shadow:
+        0 1px 0 hsla(var(--anim-hue), 90%, 65%, 0.12) inset,
+        0 12px 40px rgba(0,0,0,0.45),
+        0 0 0 1px hsla(var(--anim-hue), 90%, 55%, 0.05),
+        0 8px 24px hsla(var(--anim-hue), 90%, 55%, 0.15);
+    }
+
+    .lg-btn-accent:active {
+      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.12) 0%, hsla(var(--anim-hue), 90%, 55%, 0.03) 100%);
+      border-top-color: hsla(var(--anim-hue), 90%, 55%, 0.15);
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.5) inset,
+        0 1px 0 hsla(var(--anim-hue), 90%, 55%, 0.04) inset;
+    }
+
+    /* ===== LIQUID GLASS CARD (square-ish) ===== */
+    .lg-card {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.008) 100%);
+      backdrop-filter: blur(28px) saturate(1.4);
+      -webkit-backdrop-filter: blur(28px) saturate(1.4);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-top-color: rgba(255,255,255,0.10);
+      border-radius: 4px;
+      padding: 22px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.04) inset,
+        0 8px 36px rgba(0,0,0,0.45),
+        0 0 0 1px rgba(255,255,255,0.015);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .lg-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    }
+
+    .lg-card:hover {
+      border-color: rgba(255,255,255,0.10);
+      border-top-color: rgba(255,255,255,0.16);
+      transform: translateY(-3px);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.07) inset,
+        0 16px 48px rgba(0,0,0,0.55),
+        0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.20) 100%);
+      backdrop-filter: blur(48px) saturate(1.1);
+      -webkit-backdrop-filter: blur(48px) saturate(1.1);
+      border-bottom: 1px solid rgba(255,255,255,0.025);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-placeholder {
+      width: 36px;
+      height: 36px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.30), hsla(var(--anim-hue), 90%, 55%, 0.10));
+      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.30);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: hsl(var(--anim-hue), 90%, 60%);
+      box-shadow: 0 0 20px hsla(var(--anim-hue), 90%, 55%, 0.12);
+      transition: all 0.5s ease;
+    }
+
+    .logo-text {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-text span {
+      color: hsl(var(--anim-hue), 90%, 60%);
+      transition: color 0.5s ease;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-link {
+      padding: 6px 12px;
+      border-radius: 3px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px 40px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 3px;
+      background: hsla(var(--anim-hue), 90%, 55%, 0.12);
+      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.18);
+      color: hsl(var(--anim-hue), 90%, 65%);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      transition: all 0.5s ease;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .hero-badge-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: hsl(var(--anim-hue), 90%, 60%);
+      box-shadow: 0 0 8px hsla(var(--anim-hue), 90%, 55%, 0.40);
+      animation: pulse 2s ease-in-out infinite;
+      transition: all 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+      background: linear-gradient(180deg, #fff 0%, #888 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(180deg, hsl(var(--anim-hue), 90%, 60%) 0%, hsl(var(--anim-hue), 90%, 35%) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.5s ease;
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      max-width: 520px;
+      margin: 0 auto 24px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ===== SECTION ===== */
+    .section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 24px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== MOD CARDS GRID ===== */
+    .mods-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .mods-grid { grid-template-columns: 1fr; }
+    }
+
+    .mod-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .mod-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .mod-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .mod-icon::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      border-radius: inherit;
+    }
+
+    .mod-icon svg {
+      width: 24px;
+      height: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mod-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      letter-spacing: -0.3px;
+    }
+
+    .mod-info .version {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .mod-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== FEATURE TAGS ===== */
+    .mod-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .feature-tag {
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: transform 0.2s ease;
+      cursor: default;
+    }
+
+    .feature-tag:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Rainbow colors for tags */
+    .feature-tag:nth-child(7n+1) {
+      background: hsla(0, 90%, 55%, 0.14);
+      border-color: hsla(0, 90%, 55%, 0.22);
+      color: hsl(0, 90%, 78%);
+    }
+    .feature-tag:nth-child(7n+2) {
+      background: hsla(30, 90%, 55%, 0.14);
+      border-color: hsla(30, 90%, 55%, 0.22);
+      color: hsl(30, 90%, 78%);
+    }
+    .feature-tag:nth-child(7n+3) {
+      background: hsla(55, 90%, 50%, 0.14);
+      border-color: hsla(55, 90%, 50%, 0.22);
+      color: hsl(55, 90%, 75%);
+    }
+    .feature-tag:nth-child(7n+4) {
+      background: hsla(140, 90%, 50%, 0.14);
+      border-color: hsla(140, 90%, 50%, 0.22);
+      color: hsl(140, 90%, 75%);
+    }
+    .feature-tag:nth-child(7n+5) {
+      background: hsla(190, 90%, 55%, 0.14);
+      border-color: hsla(190, 90%, 55%, 0.22);
+      color: hsl(190, 90%, 78%);
+    }
+    .feature-tag:nth-child(7n+6) {
+      background: hsla(220, 90%, 60%, 0.14);
+      border-color: hsla(220, 90%, 60%, 0.22);
+      color: hsl(220, 90%, 80%);
+    }
+    .feature-tag:nth-child(7n+7) {
+      background: hsla(280, 90%, 60%, 0.14);
+      border-color: hsla(280, 90%, 60%, 0.22);
+      color: hsl(280, 90%, 80%);
+    }
+
+    /* Версии мода в виде тегов */
+    .mod-versions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .version-tag {
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .mod-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .mod-actions .lg-btn {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    /* ===== STATS BAR ===== */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 16px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.035);
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+
+    .stat-item:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.07);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-value.accent {
+      background: linear-gradient(180deg, hsl(var(--anim-hue), 90%, 60%), hsl(var(--anim-hue), 90%, 35%));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: all 0.5s ease;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== ABOUT SECTION ===== */
+    .about-card {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .about-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.25), hsla(var(--anim-hue), 90%, 55%, 0.08));
+      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      font-weight: 700;
+      color: hsl(var(--anim-hue), 90%, 60%);
+      flex-shrink: 0;
+      transition: all 0.5s ease;
+    }
+
+    .about-content {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .about-content h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .about-content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .about-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      text-align: center;
+    }
+
+    .footer-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+    }
+
+    .footer-text a {
+      color: hsl(var(--anim-hue), 90%, 60%);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.5s ease;
+    }
+
+    .footer-text a:hover {
+      text-decoration: underline;
+    }
+
+    .mojang-disclaimer {
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+      line-height: 1.6;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in {
+      animation: fadeUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    /* Placeholder card styles */
+    .mod-card-placeholder {
+      opacity: 0.5;
+      pointer-events: none;
+      filter: grayscale(0.3);
+      animation: placeholderPulse 2.5s ease-in-out infinite;
+      border-style: dashed;
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    @keyframes placeholderPulse {
+      0%, 100% {
+        border-color: rgba(255,255,255,0.04);
+        box-shadow: 0 8px 36px rgba(0,0,0,0.45);
+      }
+      50% {
+        border-color: rgba(255,255,255,0.10);
+        box-shadow: 0 8px 36px rgba(0,0,0,0.45), 0 0 30px hsla(var(--anim-hue), 90%, 55%, 0.05);
+      }
+    }
+
+    .mod-card-placeholder .mod-info h3 {
+      color: var(--text-muted);
+    }
+    .mod-card-placeholder .mod-desc {
+      color: var(--text-muted);
+    }
+    .mod-card-placeholder .feature-tag {
+      opacity: 0.5;
+    }
+    .mod-card-placeholder .mod-actions .lg-btn {
+      opacity: 0.4;
+    }
+
+    /* Адаптация для мобильных */
+    @media (max-width: 480px) {
+      .lg-card {
+        padding: 16px;
+      }
+      .header-inner {
+        padding: 10px 16px;
+      }
+      .hero {
+        padding: 40px 16px 30px;
+      }
+      .section {
+        padding: 20px 16px;
+      }
+      .hero h1 {
+        font-size: 30px;
+      }
+      .mod-header {
+        flex-wrap: wrap;
+      }
+      .mod-icon {
+        width: 40px;
+        height: 40px;
+      }
+      .mod-info h3 {
+        font-size: 16px;
+      }
+      .mod-actions .lg-btn {
+        font-size: 11px;
+        padding: 6px 8px;
+      }
+      .about-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+  <base target="_blank">
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-placeholder">A</div>
+        <div class="logo-text">ar1<span>emq</span></div>
+      </div>
+      <nav class="nav-links">
+        <a href="#about" class="nav-link">Об авторе</a>
+        <a href="#mods" class="nav-link">Моды</a>
+        <a href="https://discord.gg/ey2TuyrSA" target="_blank" class="nav-link" title="Discord">Discord</a>
+        <a href="https://t.me/THEMIDNIGHTorg" target="_blank" class="nav-link" title="Telegram">Telegram</a>
+        <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn" style="padding: 6px 14px; font-size: 12px;">Modrinth</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <a href="https://modrinth.com/organization/Od7WauuJ" target="_blank" class="hero-badge animate-in">
+      <div class="hero-badge-dot"></div>
+      THEMIDNIGHTCORE
+    </a>
+    <h1 class="animate-in delay-1">Моды для<br><span>Minecraft</span></h1>
+    <p class="animate-in delay-2">Простые и надёжные Fabric-моды для твоего мира. Бэкапы, монеты и многое другое — всё с открытым исходным кодом.</p>
+    <div class="hero-actions animate-in delay-3">
+      <a href="#mods" class="lg-btn lg-btn-accent">Смотреть моды</a>
+      <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn">Профиль на Modrinth</a>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="section-title animate-in">Об авторе</div>
+    <div class="lg-card about-card animate-in delay-1">
+      <div class="about-avatar">A</div>
+      <div class="about-content">
+        <h3>ar1emq</h3>
+        <p>
+          Разработчик Minecraft-модов на платформе Fabric. Участник и основатель организации <span style="color: hsl(var(--anim-hue), 90%, 60%); font-weight: 500;">THEM!DNIGHTCORE</span>.<br>
+          Создание полезных инструментов для игроков и серверов — от системы бэкапов до экономики с монетами. Все моды поддерживают актуальную версию Minecraft.<br>
+          Особое внимание уделяется локализации и качестве. Все моды поддерживают полный перевод на 14 языков.
+        </p>
+        <div class="about-links">
+          <a href="https://discord.gg/ey2TuyrSA" target="_blank" class="lg-btn">Discord</a>
+          <a href="https://t.me/THEMIDNIGHTorg" target="_blank" class="lg-btn">Telegram</a>
+          <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn lg-btn-accent">Modrinth</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stats">
+    <div class="stats-bar animate-in delay-2">
+      <div class="stat-item">
+        <div class="stat-value accent" id="mods-count">0</div>
+        <div class="stat-label">Модов</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value accent" id="dev-count">0</div>
+        <div class="stat-label">В разработке</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value accent">14+</div>
+        <div class="stat-label">Языков</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value accent">Fabric</div>
+        <div class="stat-label">Платформа</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="mods">
+    <div class="section-title animate-in">Каталог модов</div>
+    <div class="mods-grid" id="mods-container">
+      <!-- Карточки будут загружены автоматически -->
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-text">
+      Разработано ar1emq | MODS | THEM!DNIGHTCORE | 2026 все права защищены.
+    </div>
+    <div class="mojang-disclaimer">
+      НЕ СВЯЗАНО И [ИЛИ] НЕ ОДОБРЕНО MOJANG И [ИЛИ] MICROSOFT
+    </div>
+  </footer>
+
+  <script>
+    // Список проектов (ID с Modrinth)
+    const projectIds = [
+      'jd3bF4RU', // AR1 Backup
+      'iumYcGu9', // AR1 Coins Mod
+      'kXkCTz7q', // AR1 Connect Button
+      '4hL1ciTh', // AR1 No Experience
+      'EXwjnumW', // AR1 Text Formatting
+      'r6qYWJyY', // AR1 Animated Typing (Under review)
+      'iVh0c5lg', // AR1 Coords Copy (Under review)
+      'yJi4KaBC'  // AR1 Hide Password (Under review)
+    ];
+
+    function createFallbackIcon() {
+      return `
+        <div class="mod-icon" style="background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.15), hsla(var(--anim-hue), 90%, 55%, 0.05)); border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.2);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--anim-hue), 90%, 70%);">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </div>
+      `;
+    }
+
+    function createModCard(project, versionsList) {
+      const iconHtml = project.icon_url
+        ? `<div class="mod-icon" style="background-image: url('${project.icon_url}'); background-size: cover; background-position: center;"></div>`
+        : createFallbackIcon();
+
+      const downloads = project.downloads?.toLocaleString() || '0';
+
+      const shortDesc = project.description
+        ? (project.description.length > 100 ? project.description.substring(0, 100) + '…' : project.description)
+        : 'Описание скоро появится';
+
+      const categories = project.categories || [];
+      const tagsHtml = categories.slice(0, 6).map(cat =>
+        `<span class="feature-tag">${cat}</span>`
+      ).join('');
+
+      // Список версий (последние 5)
+      const versionsTags = versionsList.slice(0, 5).map(v =>
+        `<span class="version-tag">${v}</span>`
+      ).join('');
+      const moreVersions = versionsList.length > 5 ? `<span class="version-tag">+${versionsList.length - 5} ещё</span>` : '';
+
+      return `
+        <div class="lg-card mod-card animate-in">
+          <div class="mod-header">
+            ${iconHtml}
+            <div class="mod-info">
+              <h3>${project.title}</h3>
+              <div class="version">Fabric · ${project.game_versions?.[0] || '1.21+'}</div>
+            </div>
+          </div>
+          <p class="mod-desc">${shortDesc}</p>
+          <div class="mod-features">
+            ${tagsHtml || '<span class="feature-tag">скоро</span>'}
+            <span class="feature-tag">Скачиваний: ${downloads}</span>
+          </div>
+          <div class="mod-versions">
+            ${versionsTags}
+            ${moreVersions}
+          </div>
+          <div class="mod-actions">
+            <a href="https://modrinth.com/project/${project.id}" target="_blank" class="lg-btn lg-btn-accent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Скачать
+            </a>
+            <a href="https://modrinth.com/project/${project.id}/versions" target="_blank" class="lg-btn">Версии</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function createPlaceholderCard(name) {
+      return `
+        <div class="lg-card mod-card mod-card-placeholder animate-in">
+          <div class="mod-header">
+            <div class="mod-icon" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #555;">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </div>
+            <div class="mod-info">
+              <h3>${name}</h3>
+              <div class="version">в разработке</div>
+            </div>
+          </div>
+          <p class="mod-desc">Скоро здесь появится описание. Проект находится на модерации.</p>
+          <div class="mod-features">
+            <span class="feature-tag">скоро</span>
+            <span class="feature-tag">✨</span>
+          </div>
+          <div class="mod-actions">
+            <span class="lg-btn" style="opacity:0.4; pointer-events:none;">Ожидайте</span>
+            <span class="lg-btn" style="opacity:0.4; pointer-events:none;">–</span>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadProjects() {
+      const container = document.getElementById('mods-container');
+      container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding: 20px;">Загрузка модов…</div>';
+
+      const cardPromises = projectIds.map(async (id) => {
+        try {
+          const projectRes = await fetch(`https://api.modrinth.com/v2/project/${id}`);
+          if (!projectRes.ok) throw new Error('Not found');
+          const project = await projectRes.json();
+
+          // Получаем все версии
+          let versionsList = [];
+          try {
+            const versionsRes = await fetch(`https://api.modrinth.com/v2/project/${id}/version`);
+            if (versionsRes.ok) {
+              const versions = await versionsRes.json();
+              versionsList = versions.map(v => v.version_number);
+            }
+          } catch (e) {
+            console.warn('Не удалось получить версии для', id);
+          }
+
+          return { html: createModCard(project, versionsList), isPlaceholder: false };
+        } catch (err) {
+          const name = {
+            'iVh0c5lg': 'AR1 Coords Copy',
+            'yJi4KaBC': 'AR1 Hide Password',
+            'r6qYWJyY': 'AR1 Animated Typing'
+          }[id] || 'Новый мод';
+          return { html: createPlaceholderCard(name), isPlaceholder: true };
+        }
+      });
+
+      const results = await Promise.all(cardPromises);
+      const normalCards = results.filter(r => !r.isPlaceholder).map(r => r.html);
+      const placeholderCards = results.filter(r => r.isPlaceholder).map(r => r.html);
+      container.innerHTML = [...normalCards, ...placeholderCards].join('');
+
+      // Обновляем статистику
+      document.getElementById('mods-count').textContent = normalCards.length;
+      document.getElementById('dev-count').textContent = placeholderCards.length;
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProjects);
+  </script>
+
+</body>
+</html>
