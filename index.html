@@ -559,6 +559,34 @@
       font-weight: 500;
     }
 
+    /* Поддерживаемые версии игры */
+    .game-versions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .version-tag-current {
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: hsla(140, 90%, 50%, 0.15);
+      border: 1px solid hsla(140, 90%, 50%, 0.35);
+      font-size: 10px;
+      color: hsl(140, 90%, 70%);
+      font-weight: 600;
+    }
+
+    .version-tag-old {
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 10px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
     .mod-actions {
       display: flex;
       gap: 8px;
@@ -914,7 +942,21 @@
       `;
     }
 
-    function createModCard(project, versionsList) {
+    // Сортировка версий игры по убыванию (новые сверху)
+    function sortGameVersions(versions) {
+      return versions.slice().sort((a, b) => {
+        const aParts = a.split('.').map(Number);
+        const bParts = b.split('.').map(Number);
+        for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+          const aVal = aParts[i] || 0;
+          const bVal = bParts[i] || 0;
+          if (aVal !== bVal) return bVal - aVal;
+        }
+        return a.localeCompare(b);
+      });
+    }
+
+    function createModCard(project, versionsList, gameVersions) {
       const iconHtml = project.icon_url
         ? `<div class="mod-icon" style="background-image: url('${project.icon_url}'); background-size: cover; background-position: center;"></div>`
         : createFallbackIcon();
@@ -930,11 +972,18 @@
         `<span class="feature-tag">${cat}</span>`
       ).join('');
 
-      // Список версий (последние 5)
+      // Список версий релизов (последние 5)
       const versionsTags = versionsList.slice(0, 5).map(v =>
         `<span class="version-tag">${v}</span>`
       ).join('');
       const moreVersions = versionsList.length > 5 ? `<span class="version-tag">+${versionsList.length - 5} ещё</span>` : '';
+
+      // Поддерживаемые версии игры (сортируем по убыванию)
+      const sortedGameVersions = sortGameVersions(gameVersions);
+      const gameVersionsTags = sortedGameVersions.map((v, index) => {
+        const cls = index === 0 ? 'version-tag-current' : 'version-tag-old';
+        return `<span class="${cls}">${v}</span>`;
+      }).join('');
 
       return `
         <div class="lg-card mod-card animate-in">
@@ -942,7 +991,7 @@
             ${iconHtml}
             <div class="mod-info">
               <h3>${project.title}</h3>
-              <div class="version">Fabric · ${project.game_versions?.[0] || '1.21+'}</div>
+              <div class="version">Fabric</div>
             </div>
           </div>
           <p class="mod-desc">${shortDesc}</p>
@@ -953,6 +1002,10 @@
           <div class="mod-versions">
             ${versionsTags}
             ${moreVersions}
+          </div>
+          <div class="game-versions">
+            <span style="font-size:10px; color:var(--text-muted); margin-right:4px;">Игра:</span>
+            ${gameVersionsTags}
           </div>
           <div class="mod-actions">
             <a href="https://modrinth.com/project/${project.id}" target="_blank" class="lg-btn lg-btn-accent">
@@ -1005,17 +1058,24 @@
 
           // Получаем все версии
           let versionsList = [];
+          let gameVersions = [];
           try {
             const versionsRes = await fetch(`https://api.modrinth.com/v2/project/${id}/version`);
             if (versionsRes.ok) {
               const versions = await versionsRes.json();
               versionsList = versions.map(v => v.version_number);
+              // Собираем все уникальные game_versions из всех версий
+              const gameSet = new Set();
+              versions.forEach(v => {
+                (v.game_versions || []).forEach(gv => gameSet.add(gv));
+              });
+              gameVersions = Array.from(gameSet);
             }
           } catch (e) {
             console.warn('Не удалось получить версии для', id);
           }
 
-          return { html: createModCard(project, versionsList), isPlaceholder: false };
+          return { html: createModCard(project, versionsList, gameVersions), isPlaceholder: false };
         } catch (err) {
           const name = {
             'iVh0c5lg': 'AR1 Coords Copy',
