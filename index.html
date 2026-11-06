@@ -34,6 +34,10 @@
       --glass-border: rgba(255,255,255,0.06);
       --glass-highlight: rgba(255,255,255,0.10);
       --anim-hue: 0;
+      --accent-sat: 0%; /* Начальное состояние: бело-серый */
+      --modrinth-green: #00AF5C;
+      --modrinth-green-dark: #008f4a;
+      --modrinth-green-light: #1bd96a;
     }
 
     body {
@@ -44,20 +48,27 @@
       overflow-x: hidden;
       font-size: 15px;
       line-height: 1.5;
+      transition: --accent-sat 0.8s ease; /* Плавный переход насыщенности */
     }
 
-    /* ===== ANIMATED RAINBOW GRADIENT BACKGROUND ===== */
+    /* ===== ANIMATED AURORA BACKGROUND ===== */
     body::after {
       content: '';
       position: fixed;
       inset: 0;
       background:
-        radial-gradient(ellipse 80% 60% at 20% 40%, hsla(var(--anim-hue), 90%, 45%, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 80% at 80% 60%, hsla(calc(var(--anim-hue) + 30), 90%, 40%, 0.14) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 50% at 50% 20%, hsla(calc(var(--anim-hue) + 60), 90%, 48%, 0.10) 0%, transparent 50%);
-      animation: rainbowShift 60s linear infinite;
+        radial-gradient(ellipse 80% 60% at 20% 40%, hsla(var(--anim-hue), var(--accent-sat), 45%, 0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 80% 60%, hsla(calc(var(--anim-hue) + 30), var(--accent-sat), 40%, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 20%, hsla(calc(var(--anim-hue) + 60), var(--accent-sat), 48%, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 50% at 70% 80%, hsla(calc(var(--anim-hue) + 90), var(--accent-sat), 50%, 0.10) 0%, transparent 45%);
+      animation: rainbowShift 60s linear infinite, auroraMove 18s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 0;
+    }
+
+    /* Когда добавляется класс .rainbow, насыщенность становится 90% */
+    body.rainbow {
+      --accent-sat: 90%;
     }
 
     @keyframes rainbowShift {
@@ -71,10 +82,21 @@
       100% { --anim-hue: 360; }
     }
 
+    @keyframes auroraMove {
+      0%   { transform: scale(1) translate(0, 0); }
+      100% { transform: scale(1.06) translate(1%, -1%); }
+    }
+
     @property --anim-hue {
       syntax: '<number>';
       inherits: false;
       initial-value: 0;
+    }
+
+    @property --accent-sat {
+      syntax: '<percentage>';
+      inherits: false;
+      initial-value: 0%;
     }
 
     /* OLED grain texture */
@@ -82,12 +104,12 @@
       content: '';
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
       pointer-events: none;
       z-index: 9999;
     }
 
-    /* ===== LIQUID GLASS BUTTON (square-ish) ===== */
+    /* ===== LIQUID GLASS BUTTON ===== */
     .lg-btn {
       position: relative;
       background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
@@ -152,12 +174,10 @@
         0 1px 0 rgba(255,255,255,0.12) inset,
         0 12px 40px rgba(0,0,0,0.45),
         0 0 0 1px rgba(255,255,255,0.025),
-        0 8px 24px hsla(var(--anim-hue), 90%, 55%, 0.10);
+        0 8px 24px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.10);
     }
 
-    .lg-btn:hover::after {
-      opacity: 1;
-    }
+    .lg-btn:hover::after { opacity: 1; }
 
     .lg-btn:active {
       transform: translateY(0px) scale(0.96);
@@ -172,51 +192,95 @@
     }
 
     .lg-btn-accent {
-      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.22) 0%, hsla(var(--anim-hue), 90%, 55%, 0.06) 100%);
-      border-color: hsla(var(--anim-hue), 90%, 55%, 0.25);
-      border-top-color: hsla(var(--anim-hue), 90%, 65%, 0.45);
-      color: hsl(var(--anim-hue), 90%, 85%);
+      background: linear-gradient(135deg, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.22) 0%, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.06) 100%);
+      border-color: hsla(var(--anim-hue), var(--accent-sat), 55%, 0.25);
+      border-top-color: hsla(var(--anim-hue), var(--accent-sat), 65%, 0.45);
+      color: hsl(var(--anim-hue), var(--accent-sat), 85%);
     }
 
     .lg-btn-accent::after {
-      background: radial-gradient(ellipse at center, hsla(var(--anim-hue), 90%, 55%, 0.15) 0%, transparent 70%);
+      background: radial-gradient(ellipse at center, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.15) 0%, transparent 70%);
     }
 
     .lg-btn-accent:hover {
-      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.32) 0%, hsla(var(--anim-hue), 90%, 55%, 0.10) 100%);
-      border-color: hsla(var(--anim-hue), 90%, 55%, 0.40);
-      border-top-color: hsla(var(--anim-hue), 90%, 65%, 0.60);
+      background: linear-gradient(135deg, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.32) 0%, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.10) 100%);
+      border-color: hsla(var(--anim-hue), var(--accent-sat), 55%, 0.40);
+      border-top-color: hsla(var(--anim-hue), var(--accent-sat), 65%, 0.60);
       box-shadow:
-        0 1px 0 hsla(var(--anim-hue), 90%, 65%, 0.12) inset,
+        0 1px 0 hsla(var(--anim-hue), var(--accent-sat), 65%, 0.12) inset,
         0 12px 40px rgba(0,0,0,0.45),
-        0 0 0 1px hsla(var(--anim-hue), 90%, 55%, 0.05),
-        0 8px 24px hsla(var(--anim-hue), 90%, 55%, 0.15);
+        0 0 0 1px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.05),
+        0 8px 24px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.15);
     }
 
     .lg-btn-accent:active {
-      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.12) 0%, hsla(var(--anim-hue), 90%, 55%, 0.03) 100%);
-      border-top-color: hsla(var(--anim-hue), 90%, 55%, 0.15);
+      background: linear-gradient(135deg, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.12) 0%, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.03) 100%);
+      border-top-color: hsla(var(--anim-hue), var(--accent-sat), 55%, 0.15);
       box-shadow:
         0 2px 8px rgba(0,0,0,0.5) inset,
-        0 1px 0 hsla(var(--anim-hue), 90%, 55%, 0.04) inset;
+        0 1px 0 hsla(var(--anim-hue), var(--accent-sat), 55%, 0.04) inset;
     }
 
-    /* ===== LIQUID GLASS CARD (square-ish) ===== */
+    /* ===== MODRINTH BRAND BUTTON ===== */
+    .btn-modrinth {
+      background: linear-gradient(135deg, var(--modrinth-green) 0%, var(--modrinth-green-dark) 100%);
+      border: 1px solid var(--modrinth-green);
+      border-top-color: var(--modrinth-green-light);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.15) inset,
+        0 4px 20px rgba(0,0,0,0.35),
+        0 0 20px hsla(152, 100%, 34%, 0.15);
+    }
+
+    .btn-modrinth::before {
+      background: linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.05) 40%, transparent 60%);
+    }
+
+    .btn-modrinth::after {
+      background: radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 70%);
+    }
+
+    .btn-modrinth:hover {
+      background: linear-gradient(135deg, var(--modrinth-green-light) 0%, var(--modrinth-green) 100%);
+      border-color: var(--modrinth-green-light);
+      border-top-color: #4ae88a;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.20) inset,
+        0 12px 40px rgba(0,0,0,0.45),
+        0 0 32px hsla(152, 100%, 34%, 0.25),
+        0 8px 24px hsla(152, 100%, 34%, 0.20);
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    .btn-modrinth:active {
+      background: linear-gradient(135deg, var(--modrinth-green-dark) 0%, #007a3d 100%);
+      border-color: var(--modrinth-green-dark);
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.5) inset,
+        0 1px 0 rgba(255,255,255,0.08) inset;
+      transform: translateY(0px) scale(0.96);
+    }
+
+    /* ===== LIQUID GLASS CARD ===== */
     .lg-card {
       position: relative;
-      background: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0.008) 100%);
-      backdrop-filter: blur(28px) saturate(1.4);
-      -webkit-backdrop-filter: blur(28px) saturate(1.4);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-top-color: rgba(255,255,255,0.10);
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      backdrop-filter: blur(32px) saturate(1.6);
+      -webkit-backdrop-filter: blur(32px) saturate(1.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-top-color: rgba(255,255,255,0.12);
       border-radius: 4px;
       padding: 22px;
       box-shadow:
-        0 1px 0 rgba(255,255,255,0.04) inset,
+        0 1px 0 rgba(255,255,255,0.05) inset,
         0 8px 36px rgba(0,0,0,0.45),
         0 0 0 1px rgba(255,255,255,0.015);
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1000px;
     }
 
     .lg-card::before {
@@ -224,18 +288,31 @@
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    }
+
+    .lg-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
     }
 
     .lg-card:hover {
-      border-color: rgba(255,255,255,0.10);
-      border-top-color: rgba(255,255,255,0.16);
-      transform: translateY(-3px);
+      border-color: rgba(255,255,255,0.12);
+      border-top-color: rgba(255,255,255,0.18);
+      transform: translateY(-4px) rotateX(1deg) rotateY(1deg);
       box-shadow:
-        0 1px 0 rgba(255,255,255,0.07) inset,
-        0 16px 48px rgba(0,0,0,0.55),
-        0 0 0 1px rgba(255,255,255,0.02);
+        0 1px 0 rgba(255,255,255,0.08) inset,
+        0 20px 56px rgba(0,0,0,0.60),
+        0 0 0 1px rgba(255,255,255,0.025),
+        0 8px 32px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.06);
     }
+
+    .lg-card:hover::after { opacity: 1; }
 
     /* ===== HEADER ===== */
     .header {
@@ -243,8 +320,8 @@
       top: 0;
       z-index: 100;
       background: linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.20) 100%);
-      backdrop-filter: blur(48px) saturate(1.1);
-      -webkit-backdrop-filter: blur(48px) saturate(1.1);
+      backdrop-filter: blur(48px) saturate(1.2);
+      -webkit-backdrop-filter: blur(48px) saturate(1.2);
       border-bottom: 1px solid rgba(255,255,255,0.025);
     }
 
@@ -269,15 +346,15 @@
       width: 36px;
       height: 36px;
       border-radius: 3px;
-      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.30), hsla(var(--anim-hue), 90%, 55%, 0.10));
-      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.30);
+      background: linear-gradient(135deg, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.30), hsla(var(--anim-hue), var(--accent-sat), 55%, 0.10));
+      border: 1px solid hsla(var(--anim-hue), var(--accent-sat), 55%, 0.30);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
       font-weight: 700;
-      color: hsl(var(--anim-hue), 90%, 60%);
-      box-shadow: 0 0 20px hsla(var(--anim-hue), 90%, 55%, 0.12);
+      color: hsl(var(--anim-hue), var(--accent-sat), 60%);
+      box-shadow: 0 0 20px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.12);
       transition: all 0.5s ease;
     }
 
@@ -288,7 +365,7 @@
     }
 
     .logo-text span {
-      color: hsl(var(--anim-hue), 90%, 60%);
+      color: hsl(var(--anim-hue), var(--accent-sat), 60%);
       transition: color 0.5s ease;
     }
 
@@ -330,9 +407,9 @@
       gap: 8px;
       padding: 6px 14px;
       border-radius: 3px;
-      background: hsla(var(--anim-hue), 90%, 55%, 0.12);
-      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.18);
-      color: hsl(var(--anim-hue), 90%, 65%);
+      background: hsla(var(--anim-hue), var(--accent-sat), 55%, 0.12);
+      border: 1px solid hsla(var(--anim-hue), var(--accent-sat), 55%, 0.18);
+      color: hsl(var(--anim-hue), var(--accent-sat), 65%);
       font-size: 12px;
       font-weight: 500;
       margin-bottom: 16px;
@@ -345,8 +422,8 @@
       width: 5px;
       height: 5px;
       border-radius: 50%;
-      background: hsl(var(--anim-hue), 90%, 60%);
-      box-shadow: 0 0 8px hsla(var(--anim-hue), 90%, 55%, 0.40);
+      background: hsl(var(--anim-hue), var(--accent-sat), 60%);
+      box-shadow: 0 0 8px hsla(var(--anim-hue), var(--accent-sat), 55%, 0.40);
       animation: pulse 2s ease-in-out infinite;
       transition: all 0.5s ease;
     }
@@ -370,7 +447,7 @@
     }
 
     .hero h1 span {
-      background: linear-gradient(180deg, hsl(var(--anim-hue), 90%, 60%) 0%, hsl(var(--anim-hue), 90%, 35%) 100%);
+      background: linear-gradient(180deg, hsl(var(--anim-hue), var(--accent-sat), 60%) 0%, hsl(var(--anim-hue), var(--accent-sat), 35%) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -500,9 +577,7 @@
       cursor: default;
     }
 
-    .feature-tag:hover {
-      transform: translateY(-1px);
-    }
+    .feature-tag:hover { transform: translateY(-1px); }
 
     /* Rainbow colors for tags */
     .feature-tag:nth-child(7n+1) {
@@ -541,7 +616,6 @@
       color: hsl(280, 90%, 80%);
     }
 
-    /* Версии мода в виде тегов */
     .mod-versions {
       display: flex;
       flex-wrap: wrap;
@@ -559,7 +633,6 @@
       font-weight: 500;
     }
 
-    /* Поддерживаемые версии игры */
     .game-versions {
       display: flex;
       flex-wrap: wrap;
@@ -602,7 +675,7 @@
     /* ===== STATS BAR ===== */
     .stats-bar {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-bottom: 30px;
     }
@@ -637,7 +710,7 @@
     }
 
     .stat-value.accent {
-      background: linear-gradient(180deg, hsl(var(--anim-hue), 90%, 60%), hsl(var(--anim-hue), 90%, 35%));
+      background: linear-gradient(180deg, hsl(var(--anim-hue), var(--accent-sat), 60%), hsl(var(--anim-hue), var(--accent-sat), 35%));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -664,14 +737,14 @@
       width: 70px;
       height: 70px;
       border-radius: 3px;
-      background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.25), hsla(var(--anim-hue), 90%, 55%, 0.08));
-      border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.25);
+      background: linear-gradient(135deg, hsla(var(--anim-hue), var(--accent-sat), 55%, 0.25), hsla(var(--anim-hue), var(--accent-sat), 55%, 0.08));
+      border: 1px solid hsla(var(--anim-hue), var(--accent-sat), 55%, 0.25);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 28px;
       font-weight: 700;
-      color: hsl(var(--anim-hue), 90%, 60%);
+      color: hsl(var(--anim-hue), var(--accent-sat), 60%);
       flex-shrink: 0;
       transition: all 0.5s ease;
     }
@@ -719,15 +792,13 @@
     }
 
     .footer-text a {
-      color: hsl(var(--anim-hue), 90%, 60%);
+      color: hsl(var(--anim-hue), var(--accent-sat), 60%);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.5s ease;
     }
 
-    .footer-text a:hover {
-      text-decoration: underline;
-    }
+    .footer-text a:hover { text-decoration: underline; }
 
     .mojang-disclaimer {
       font-size: 10px;
@@ -757,75 +828,18 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
 
-    /* Placeholder card styles */
-    .mod-card-placeholder {
-      opacity: 0.5;
-      pointer-events: none;
-      filter: grayscale(0.3);
-      animation: placeholderPulse 2.5s ease-in-out infinite;
-      border-style: dashed;
-      border-color: rgba(255,255,255,0.06);
-    }
-
-    @keyframes placeholderPulse {
-      0%, 100% {
-        border-color: rgba(255,255,255,0.04);
-        box-shadow: 0 8px 36px rgba(0,0,0,0.45);
-      }
-      50% {
-        border-color: rgba(255,255,255,0.10);
-        box-shadow: 0 8px 36px rgba(0,0,0,0.45), 0 0 30px hsla(var(--anim-hue), 90%, 55%, 0.05);
-      }
-    }
-
-    .mod-card-placeholder .mod-info h3 {
-      color: var(--text-muted);
-    }
-    .mod-card-placeholder .mod-desc {
-      color: var(--text-muted);
-    }
-    .mod-card-placeholder .feature-tag {
-      opacity: 0.5;
-    }
-    .mod-card-placeholder .mod-actions .lg-btn {
-      opacity: 0.4;
-    }
-
     /* Адаптация для мобильных */
     @media (max-width: 480px) {
-      .lg-card {
-        padding: 16px;
-      }
-      .header-inner {
-        padding: 10px 16px;
-      }
-      .hero {
-        padding: 40px 16px 30px;
-      }
-      .section {
-        padding: 20px 16px;
-      }
-      .hero h1 {
-        font-size: 30px;
-      }
-      .mod-header {
-        flex-wrap: wrap;
-      }
-      .mod-icon {
-        width: 40px;
-        height: 40px;
-      }
-      .mod-info h3 {
-        font-size: 16px;
-      }
-      .mod-actions .lg-btn {
-        font-size: 11px;
-        padding: 6px 8px;
-      }
-      .about-card {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .lg-card { padding: 16px; }
+      .header-inner { padding: 10px 16px; }
+      .hero { padding: 40px 16px 30px; }
+      .section { padding: 20px 16px; }
+      .hero h1 { font-size: 30px; }
+      .mod-header { flex-wrap: wrap; }
+      .mod-icon { width: 40px; height: 40px; }
+      .mod-info h3 { font-size: 16px; }
+      .mod-actions .lg-btn { font-size: 11px; padding: 6px 8px; }
+      .about-card { flex-direction: column; align-items: flex-start; }
     }
   </style>
   <base target="_blank">
@@ -841,9 +855,9 @@
       <nav class="nav-links">
         <a href="#about" class="nav-link">Об авторе</a>
         <a href="#mods" class="nav-link">Моды</a>
-        <a href="https://discord.gg/ey2TuyrSA" target="_blank" class="nav-link" title="Discord">Discord</a>
+        <a href="https://discord.gg/mBZG4tQ5AM" target="_blank" class="nav-link" title="Discord">Discord</a>
         <a href="https://t.me/THEMIDNIGHTorg" target="_blank" class="nav-link" title="Telegram">Telegram</a>
-        <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn" style="padding: 6px 14px; font-size: 12px;">Modrinth</a>
+        <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn btn-modrinth" style="padding: 6px 14px; font-size: 12px;">Modrinth</a>
       </nav>
     </div>
   </header>
@@ -854,10 +868,10 @@
       THEMIDNIGHTCORE
     </a>
     <h1 class="animate-in delay-1">Моды для<br><span>Minecraft</span></h1>
-    <p class="animate-in delay-2">Простые и надёжные Fabric-моды для вашей игры.</p>
+    <p class="animate-in delay-2">Простые и надёжные Fabric-моды для игры и серверов.</p>
     <div class="hero-actions animate-in delay-3">
       <a href="#mods" class="lg-btn lg-btn-accent">Смотреть моды</a>
-      <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn">Профиль на Modrinth</a>
+      <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn btn-modrinth">Профиль на Modrinth</a>
     </div>
   </section>
 
@@ -868,14 +882,14 @@
       <div class="about-content">
         <h3>ar1emq</h3>
         <p>
-          Разработчик Minecraft-модов на платформе Fabric. Участник и основатель организации <span style="color: hsl(var(--anim-hue), 90%, 60%); font-weight: 500;">THEM!DNIGHTCORE</span>.<br>
-          Создание полезных инструментов для игроков и серверов — от системы бэкапов до экономики с монетами. Все моды поддерживают актуальную версию Minecraft.<br>
-          Особое внимание уделяется локализации и качестве. Все моды поддерживают полный перевод на 14 языков.
+          Разработчик Fabric-модов для Minecraft, основатель организации <span style="color: hsl(var(--anim-hue), var(--accent-sat), 60%); font-weight: 500;">THEM!DNIGHTCORE</span>.
+          Создаю практичные инструменты для игроков и серверов: от системы резервного копирования до внутриигровой экономики.
+          Все моды локализованы на 14 языков и поддерживают актуальные версии игры.
         </p>
         <div class="about-links">
-          <a href="https://discord.gg/ey2TuyrSA" target="_blank" class="lg-btn">Discord</a>
+          <a href="https://discord.gg/mBZG4tQ5AM" target="_blank" class="lg-btn">Discord</a>
           <a href="https://t.me/THEMIDNIGHTorg" target="_blank" class="lg-btn">Telegram</a>
-          <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn lg-btn-accent">Modrinth</a>
+          <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="lg-btn btn-modrinth">Modrinth</a>
         </div>
       </div>
     </div>
@@ -884,12 +898,8 @@
   <section class="section" id="stats">
     <div class="stats-bar animate-in delay-2">
       <div class="stat-item">
-        <div class="stat-value accent" id="mods-count">0</div>
+        <div class="stat-value accent" id="mods-count">…</div>
         <div class="stat-label">Модов</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value accent" id="dev-count">0</div>
-        <div class="stat-label">В разработке</div>
       </div>
       <div class="stat-item">
         <div class="stat-value accent">14+</div>
@@ -905,44 +915,25 @@
   <section class="section" id="mods">
     <div class="section-title animate-in">Каталог модов</div>
     <div class="mods-grid" id="mods-container">
-      <!-- Карточки будут загружены автоматически -->
+      <!-- Карточки загружаются автоматически из организации на Modrinth -->
     </div>
   </section>
 
   <footer class="footer">
     <div class="footer-text">
-      Разработано ar1emq | MODS | THEM!DNIGHTCORE | 2026 все права защищены.
+      Разработано ar1emq | MODS | THEM!DNIGHTCORE | 2026. Все права защищены.
     </div>
     <div class="mojang-disclaimer">
-      НЕ СВЯЗАНО И [ИЛИ] НЕ ОДОБРЕНО MOJANG И [ИЛИ] MICROSOFT
+      НЕ СВЯЗАНО И НЕ ОДОБРЕНО MOJANG И/ИЛИ MICROSOFT
     </div>
   </footer>
 
   <script>
-    // Список проектов (ID с Modrinth)
-    const projectIds = [
-      'jd3bF4RU', // AR1 Backup
-      'iumYcGu9', // AR1 Coins Mod
-      'kXkCTz7q', // AR1 Connect Button
-      '4hL1ciTh', // AR1 No Experience
-      'EXwjnumW', // AR1 Text Formatting
-      'r6qYWJyY', // AR1 Animated Typing (Under review)
-      'iVh0c5lg', // AR1 Coords Copy (Under review)
-      'yJi4KaBC'  // AR1 Hide Password (Under review)
-    ];
+    // ===== КОНФИГУРАЦИЯ =====
+    const ORGANIZATION_ID = 'Od7WauuJ'; // THEMIDNIGHTCORE
+    const API_BASE = 'https://api.modrinth.com';
 
-    function createFallbackIcon() {
-      return `
-        <div class="mod-icon" style="background: linear-gradient(135deg, hsla(var(--anim-hue), 90%, 55%, 0.15), hsla(var(--anim-hue), 90%, 55%, 0.05)); border: 1px solid hsla(var(--anim-hue), 90%, 55%, 0.2);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--anim-hue), 90%, 70%);">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-        </div>
-      `;
-    }
-
-    // Сортировка версий игры по убыванию (новые сверху)
+    // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
     function sortGameVersions(versions) {
       return versions.slice().sort((a, b) => {
         const aParts = a.split('.').map(Number);
@@ -956,15 +947,25 @@
       });
     }
 
+    function formatDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // ===== СОЗДАНИЕ КАРТОЧКИ =====
     function createModCard(project, versionsList, gameVersions) {
       const iconHtml = project.icon_url
-        ? `<div class="mod-icon" style="background-image: url('${project.icon_url}'); background-size: cover; background-position: center;"></div>`
-        : createFallbackIcon();
+        ? `<div class="mod-icon" style="background-image: url('${project.icon_url}');"></div>`
+        : `<div class="mod-icon" style="background: linear-gradient(135deg, hsla(var(--anim-hue),var(--accent-sat),55%,0.15), hsla(var(--anim-hue),var(--accent-sat),55%,0.05)); border: 1px solid hsla(var(--anim-hue),var(--accent-sat),55%,0.2);">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: hsl(var(--anim-hue),var(--accent-sat),70%);">
+               <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+             </svg>
+           </div>`;
 
-      const downloads = project.downloads?.toLocaleString() || '0';
-
+      const downloads = project.downloads?.toLocaleString('ru-RU') || '0';
       const shortDesc = project.description
-        ? (project.description.length > 100 ? project.description.substring(0, 100) + '…' : project.description)
+        ? (project.description.length > 110 ? project.description.substring(0, 110) + '…' : project.description)
         : 'Описание скоро появится';
 
       const categories = project.categories || [];
@@ -972,16 +973,14 @@
         `<span class="feature-tag">${cat}</span>`
       ).join('');
 
-      // Список версий релизов (последние 5)
       const versionsTags = versionsList.slice(0, 5).map(v =>
         `<span class="version-tag">${v}</span>`
       ).join('');
-      const moreVersions = versionsList.length > 5 ? `<span class="version-tag">+${versionsList.length - 5} ещё</span>` : '';
+      const moreVersions = versionsList.length > 5 ? `<span class="version-tag">+${versionsList.length - 5}</span>` : '';
 
-      // Поддерживаемые версии игры (сортируем по убыванию)
       const sortedGameVersions = sortGameVersions(gameVersions);
-      const gameVersionsTags = sortedGameVersions.map((v, index) => {
-        const cls = index === 0 ? 'version-tag-current' : 'version-tag-old';
+      const gameVersionsTags = sortedGameVersions.map((v, i) => {
+        const cls = i === 0 ? 'version-tag-current' : 'version-tag-old';
         return `<span class="${cls}">${v}</span>`;
       }).join('');
 
@@ -991,112 +990,142 @@
             ${iconHtml}
             <div class="mod-info">
               <h3>${project.title}</h3>
-              <div class="version">Fabric</div>
+              <div class="version">Fabric · обновлён ${formatDate(project.updated)}</div>
             </div>
           </div>
           <p class="mod-desc">${shortDesc}</p>
           <div class="mod-features">
             ${tagsHtml || '<span class="feature-tag">скоро</span>'}
-            <span class="feature-tag">Скачиваний: ${downloads}</span>
+            <span class="feature-tag">⬇ ${downloads}</span>
           </div>
-          <div class="mod-versions">
-            ${versionsTags}
-            ${moreVersions}
-          </div>
+          <div class="mod-versions">${versionsTags}${moreVersions}</div>
           <div class="game-versions">
             <span style="font-size:10px; color:var(--text-muted); margin-right:4px;">Игра:</span>
             ${gameVersionsTags}
           </div>
           <div class="mod-actions">
-            <a href="https://modrinth.com/project/${project.id}" target="_blank" class="lg-btn lg-btn-accent">
+            <a href="https://modrinth.com/project/${project.slug || project.id}" target="_blank" class="lg-btn btn-modrinth">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Скачать
             </a>
-            <a href="https://modrinth.com/project/${project.id}/versions" target="_blank" class="lg-btn">Версии</a>
+            <a href="https://modrinth.com/project/${project.slug || project.id}/versions" target="_blank" class="lg-btn">Версии</a>
           </div>
         </div>
       `;
     }
 
-    function createPlaceholderCard(name) {
-      return `
-        <div class="lg-card mod-card mod-card-placeholder animate-in">
-          <div class="mod-header">
-            <div class="mod-icon" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #555;">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-            </div>
-            <div class="mod-info">
-              <h3>${name}</h3>
-              <div class="version">в разработке</div>
-            </div>
-          </div>
-          <p class="mod-desc">Скоро здесь появится описание. Проект находится на модерации.</p>
-          <div class="mod-features">
-            <span class="feature-tag">скоро</span>
-            <span class="feature-tag">✨</span>
-          </div>
-          <div class="mod-actions">
-            <span class="lg-btn" style="opacity:0.4; pointer-events:none;">Ожидайте</span>
-            <span class="lg-btn" style="opacity:0.4; pointer-events:none;">–</span>
-          </div>
-        </div>
-      `;
+    // ===== ЗАГРУЗКА ДАННЫХ =====
+    async function fetchOrganizationProjects() {
+      const url = `${API_BASE}/v3/organization/${ORGANIZATION_ID}/projects`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`API v3 error: ${res.status}`);
+      const projects = await res.json();
+      return projects.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+    }
+
+    async function fetchProjectsFallback() {
+      const facets = JSON.stringify([[`organization_id:${ORGANIZATION_ID}`]]);
+      const url = `${API_BASE}/v2/search?facets=${encodeURIComponent(facets)}&limit=50`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Search API error: ${res.status}`);
+      const data = await res.json();
+      return data.hits.sort((a, b) => new Date(b.date_modified) - new Date(a.date_modified));
     }
 
     async function loadProjects() {
       const container = document.getElementById('mods-container');
-      container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding: 20px;">Загрузка модов…</div>';
+      container.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding: 30px;">
+          <div style="display:inline-block; width:24px; height:24px; border:2px solid rgba(255,255,255,0.1); border-top-color:hsl(var(--anim-hue),var(--accent-sat),60%); border-radius:50%; animation: spin 0.8s linear infinite; margin-bottom:10px;"></div>
+          <div>Загружаем моды…</div>
+        </div>
+        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+      `;
 
-      const cardPromises = projectIds.map(async (id) => {
+      let projects;
+      try {
+        projects = await fetchOrganizationProjects();
+      } catch (e) {
+        console.warn('v3 organization projects не удался, пробуем поиск:', e);
         try {
-          const projectRes = await fetch(`https://api.modrinth.com/v2/project/${id}`);
-          if (!projectRes.ok) throw new Error('Not found');
-          const project = await projectRes.json();
-
-          // Получаем все версии
-          let versionsList = [];
-          let gameVersions = [];
-          try {
-            const versionsRes = await fetch(`https://api.modrinth.com/v2/project/${id}/version`);
-            if (versionsRes.ok) {
-              const versions = await versionsRes.json();
-              versionsList = versions.map(v => v.version_number);
-              // Собираем все уникальные game_versions из всех версий
-              const gameSet = new Set();
-              versions.forEach(v => {
-                (v.game_versions || []).forEach(gv => gameSet.add(gv));
-              });
-              gameVersions = Array.from(gameSet);
-            }
-          } catch (e) {
-            console.warn('Не удалось получить версии для', id);
-          }
-
-          return { html: createModCard(project, versionsList, gameVersions), isPlaceholder: false };
-        } catch (err) {
-          const name = {
-            'iVh0c5lg': 'AR1 Coords Copy',
-            'yJi4KaBC': 'AR1 Hide Password',
-            'r6qYWJyY': 'AR1 Animated Typing'
-          }[id] || 'Новый мод';
-          return { html: createPlaceholderCard(name), isPlaceholder: true };
+          projects = await fetchProjectsFallback();
+        } catch (e2) {
+          console.error('Все способы загрузки не удались:', e2);
+          container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#f66; padding:20px;">Не удалось загрузить проекты. Попробуйте обновить страницу.</div>`;
+          return;
         }
-      });
+      }
 
-      const results = await Promise.all(cardPromises);
-      const normalCards = results.filter(r => !r.isPlaceholder).map(r => r.html);
-      const placeholderCards = results.filter(r => r.isPlaceholder).map(r => r.html);
-      container.innerHTML = [...normalCards, ...placeholderCards].join('');
+      if (!projects || projects.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:20px;">Пока нет опубликованных проектов.</div>`;
+        document.getElementById('mods-count').textContent = '0';
+        return;
+      }
 
-      // Обновляем статистику
-      document.getElementById('mods-count').textContent = normalCards.length;
-      document.getElementById('dev-count').textContent = placeholderCards.length;
+      const cards = await Promise.all(projects.map(async (project) => {
+        const id = project.id || project.project_id;
+        let versionsList = [];
+        let gameVersions = [];
+        try {
+          const vRes = await fetch(`${API_BASE}/v2/project/${id}/version`);
+          if (vRes.ok) {
+            const versions = await vRes.json();
+            versionsList = versions.map(v => v.version_number);
+            const gvSet = new Set();
+            versions.forEach(v => (v.game_versions || []).forEach(gv => gvSet.add(gv)));
+            gameVersions = Array.from(gvSet);
+          }
+        } catch (e) { /* игнорируем */ }
+
+        const projForCard = {
+          ...project,
+          slug: project.slug || project.project_id || id,
+          title: project.title,
+          description: project.description,
+          icon_url: project.icon_url,
+          downloads: project.downloads || 0,
+          categories: project.categories || project.display_categories || [],
+          updated: project.updated || project.date_modified
+        };
+        return createModCard(projForCard, versionsList, gameVersions);
+      }));
+
+      container.innerHTML = cards.join('');
+      document.getElementById('mods-count').textContent = projects.length;
     }
 
-    document.addEventListener('DOMContentLoaded', loadProjects);
+    // ===== ЭФФЕКТ «ЖИДКОЕ СТЕКЛО» ПРИ НАВЕДЕНИИ =====
+    document.addEventListener('mousemove', (e) => {
+      const card = e.target.closest('.lg-card');
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mouse-x', `${x}%`);
+      card.style.setProperty('--mouse-y', `${y}%`);
+    });
+
+    // ===== ПЛАВНЫЙ ПЕРЕХОД К РАЗНОЦВЕТНОСТИ ПРИ СКРОЛЛЕ =====
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProjects();
+
+      const modsSection = document.getElementById('mods');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            document.body.classList.add('rainbow');
+          } else {
+            // Можно оставить rainbow, если пользователь уже долистал,
+            // но лучше снять, если он вернулся наверх
+            if (entry.boundingClientRect.top > 0) {
+              document.body.classList.remove('rainbow');
+            }
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+      observer.observe(modsSection);
+    });
   </script>
 
 </body>
