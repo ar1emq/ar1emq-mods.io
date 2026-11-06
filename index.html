@@ -36,23 +36,30 @@
       --modrinth-text: #1bd96a;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       font-family: 'Minecraft Rus', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text-primary);
       min-height: 100vh;
-      overflow-x: hidden;
       font-size: 15px;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       display: flex;
       flex-direction: column;
+      overflow-x: clip; 
     }
 
-    /* ===== ЦВЕТНОЙ ДИНАМИЧЕСКИЙ ФОН ===== */
+    /* ===== ЦВЕТНОЙ ДИНАМИЧЕСКИЙ ФОН (КРУГ, ЧТОБЫ НЕ БЫЛО УГЛОВ) ===== */
     .color-bg {
       position: fixed;
-      inset: -20%;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
       z-index: -3;
       pointer-events: none;
       background: 
@@ -62,6 +69,7 @@
       animation: bgRotate 30s linear infinite;
       will-change: transform;
       transform: translateZ(0);
+      border-radius: 50%; 
     }
 
     @keyframes bgRotate {
@@ -83,7 +91,6 @@
       overflow: hidden;
     }
 
-    /* Мягкий широкий луч по горизонтали */
     .grid-bg::before {
       content: '';
       position: absolute;
@@ -94,7 +101,6 @@
       will-change: transform;
     }
 
-    /* Мягкий широкий луч по вертикали */
     .grid-bg::after {
       content: '';
       position: absolute;
@@ -159,7 +165,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(8, 8, 10, 0.7); /* Сделал шапку чуть прозрачнее */
+      background: rgba(8, 8, 10, 0.7);
       border-bottom: 1px solid var(--border);
     }
 
@@ -251,7 +257,7 @@
       text-shadow: 0 4px 20px rgba(0,0,0,0.6);
     }
     
-    /* ===== ГЛИТЧ ЭФФЕКТ ===== */
+    /* ===== БОЛЕЕ ЧАСТЫЙ ГЛИТЧ ЭФФЕКТ ===== */
     .glitch-wrapper {
       position: relative;
       display: inline-block;
@@ -275,29 +281,29 @@
     .glitch-text::before {
       left: 2px;
       text-shadow: -2px 0 red;
-      animation: glitch-anim-1 4s infinite linear alternate-reverse;
+      animation: glitch-anim-1 2s infinite linear alternate-reverse;
     }
 
     .glitch-text::after {
       left: -2px;
       text-shadow: 2px 0 blue;
-      animation: glitch-anim-2 3s infinite linear alternate-reverse;
+      animation: glitch-anim-2 1.5s infinite linear alternate-reverse;
     }
 
     @keyframes glitch-anim-1 {
-      0%, 94%, 100% { clip-path: inset(0 0 100% 0); opacity: 0; }
-      95% { clip-path: inset(20% 0 80% 0); opacity: 0.8; transform: translate(-2px, 2px); }
-      96% { clip-path: inset(60% 0 10% 0); opacity: 0.8; transform: translate(2px, -2px); }
-      97% { clip-path: inset(40% 0 50% 0); opacity: 0.8; transform: translate(-1px, 1px); }
-      98% { clip-path: inset(80% 0 5% 0); opacity: 0.8; transform: translate(1px, -1px); }
+      0%, 4%, 10%, 12%, 54%, 56%, 100% { clip-path: inset(0 0 100% 0); opacity: 0; transform: translate(0); }
+      5% { clip-path: inset(20% 0 80% 0); opacity: 0.8; transform: translate(-2px, 2px); }
+      6% { clip-path: inset(60% 0 10% 0); opacity: 0.8; transform: translate(2px, -2px); }
+      11% { clip-path: inset(40% 0 50% 0); opacity: 0.8; transform: translate(-1px, 1px); }
+      55% { clip-path: inset(80% 0 5% 0); opacity: 0.8; transform: translate(1px, -1px); }
     }
 
     @keyframes glitch-anim-2 {
-      0%, 92%, 100% { clip-path: inset(0 0 100% 0); opacity: 0; }
-      93% { clip-path: inset(10% 0 60% 0); opacity: 0.8; transform: translate(2px, 1px); }
-      94% { clip-path: inset(30% 0 20% 0); opacity: 0.8; transform: translate(-2px, -1px); }
-      95% { clip-path: inset(70% 0 10% 0); opacity: 0.8; transform: translate(1px, 2px); }
-      96% { clip-path: inset(50% 0 30% 0); opacity: 0.8; transform: translate(-1px, -2px); }
+      0%, 2%, 8%, 10%, 52%, 54%, 100% { clip-path: inset(0 0 100% 0); opacity: 0; transform: translate(0); }
+      3% { clip-path: inset(10% 0 60% 0); opacity: 0.8; transform: translate(2px, 1px); }
+      9% { clip-path: inset(30% 0 20% 0); opacity: 0.8; transform: translate(-2px, -1px); }
+      53% { clip-path: inset(70% 0 10% 0); opacity: 0.8; transform: translate(1px, 2px); }
+      55% { clip-path: inset(50% 0 30% 0); opacity: 0.8; transform: translate(-1px, -2px); }
     }
 
     .hero p {
@@ -342,7 +348,6 @@
 
     .stat-item {
       text-align: center; padding: 24px;
-      /* Сделали прозрачнее */
       background: linear-gradient(180deg, rgba(22, 22, 26, 0.65) 0%, rgba(15, 15, 18, 0.45) 100%);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -366,7 +371,6 @@
 
     .mod-card {
       position: relative;
-      /* Сделали прозрачнее */
       background: linear-gradient(180deg, rgba(22, 22, 26, 0.65) 0%, rgba(15, 15, 18, 0.45) 100%);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -457,7 +461,7 @@
 
     .tag:hover { transform: translateY(-1px); }
 
-    /* Радужные цвета: обводка и текст яркие, фон темнее и прозрачнее */
+    /* Радужные цвета */
     .tag:nth-child(7n+1) { background: hsla(0, 90%, 35%, 0.1); border-color: hsla(0, 90%, 55%, 0.22); color: hsl(0, 90%, 75%); }
     .tag:nth-child(7n+2) { background: hsla(30, 90%, 35%, 0.1); border-color: hsla(30, 90%, 55%, 0.22); color: hsl(30, 90%, 75%); }
     .tag:nth-child(7n+3) { background: hsla(55, 90%, 30%, 0.1); border-color: hsla(55, 90%, 50%, 0.22); color: hsl(55, 90%, 75%); }
@@ -466,7 +470,6 @@
     .tag:nth-child(7n+6) { background: hsla(220, 90%, 40%, 0.1); border-color: hsla(220, 90%, 60%, 0.22); color: hsl(220, 90%, 80%); }
     .tag:nth-child(7n+7) { background: hsla(280, 90%, 40%, 0.1); border-color: hsla(280, 90%, 60%, 0.22); color: hsl(280, 90%, 80%); }
 
-    /* Акцентный тег (текущая версия игры) */
     .tag-accent {
       background: rgba(0, 255, 100, 0.08) !important;
       border-color: rgba(0, 255, 100, 0.4) !important;
@@ -480,7 +483,6 @@
     /* ===== ОБ АВТОРЕ ===== */
     .about-card {
       display: flex; gap: 32px; align-items: center; flex-wrap: wrap;
-      /* Сделали прозрачнее */
       background: linear-gradient(180deg, rgba(22, 22, 26, 0.65) 0%, rgba(15, 15, 18, 0.45) 100%);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -505,13 +507,16 @@
     .about-content p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
     .about-links { display: flex; gap: 12px; flex-wrap: wrap; }
 
-    /* ===== ФУТЕР ===== */
+    /* ===== ФУТЕР (ИСПРАВЛЕН ЦВЕТ) ===== */
     .footer {
       flex-shrink: 0;
       border-top: 1px solid var(--border);
       text-align: center;
       padding: 40px 24px;
-      background: rgba(8, 8, 10, 0.9);
+      /* Сделали фон прозрачным, чтобы не было серой плашки */
+      background: rgba(8, 8, 10, 0.4); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
     }
 
     .footer-text { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; }
@@ -521,7 +526,6 @@
       margin-bottom: 24px;
     }
 
-    /* Солидный блок в футере */
     .footer-info {
       max-width: 600px;
       margin: 0 auto;
@@ -594,7 +598,7 @@
       THEMIDNIGHTCORE
     </a>
     <h1 class="animate-in delay-1">Моды для<br><span class="glitch-text">Minecraft</span></h1>
-    <p class="animate-in delay-2">Простые и надёжные Fabric-моды для игры и серверов.</p>
+    <p class="animate-in delay-2">Качественные и надёжные Fabric-моды.</p>
     <div class="hero-actions animate-in delay-3">
       <a href="#mods" class="btn">Смотреть моды</a>
       <a href="https://modrinth.com/user/DC9ytmtY" target="_blank" class="btn btn-modrinth">Профиль на Modrinth</a>
@@ -662,7 +666,6 @@
       НЕ СВЯЗАНО И НЕ ОДОБРЕНО MOJANG И/ИЛИ MICROSOFT
     </div>
     
-    <!-- Новый информационный блок -->
     <div class="footer-info">
       <p>Все моды, представленные на данном сайте, являются интеллектуальной собственностью их авторов. Пожалуйста, уважайте труд разработчиков и скачивайте контент только из официальных источников.</p>
       <p class="date">Последняя редакция сайта: 06.11.2026</p>
